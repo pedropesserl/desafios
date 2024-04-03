@@ -1,85 +1,73 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// CASO ESPECIFICO: numero de macas verdes que temos que comer é maior que o
-// numero de macas verdes disponiveis: nesse caso precisamos usar todas as macas
-// sem cor possiveis para completar as macas verdes
+#define max3(a, b, c) (max(max((a), (b)), (c)))
 
-
-void le_vetor(vector<long> &v) {
-    for (size_t i = 0; i < v.size(); i++) {
-        cin >> v[i];
+void le_multiset(multiset<size_t> &m, size_t n, size_t limite) {
+    for (size_t i = 0; i < n; i++) {
+        size_t e;
+        cin >> e;
+        m.insert(e);
+        if (m.size() > limite) {
+            m.erase(m.begin());
+        }
     }
 }
 
 int main() {
     cin.tie(0)->sync_with_stdio(0);
 
-    int x, y, a, b, c;
-    cin >> x >> y >> a >> b >> c;
-    vector<long> p(a), q(b), r(c);
-    le_vetor(p);
-    le_vetor(q);
-    le_vetor(r);
+    size_t x, y, n_vermelhas, n_verdes, n_sem_cor, soma = 0;
+    cin >> x >> y >> n_vermelhas >> n_verdes >> n_sem_cor;
+    multiset<size_t> vermelhas, verdes, sem_cor; 
+    le_multiset(vermelhas, n_vermelhas, x);
+    le_multiset(verdes, n_verdes, y);
+    le_multiset(sem_cor, n_sem_cor, -1);
 
-    sort(p.rbegin(), p.rend());
-    sort(q.rbegin(), q.rend());
-    sort(r.rbegin(), r.rend());
-    
-    long soma = 0;
-    for (int i = 0, j = 0, k = 0; i < x or j < y;) {
-        if (i < x and j < y and k < c) {
-            if (p[i] > q[j]) {
-                if (p[i] > r[k]) {
-                    soma += p[i];
-                } else {
-                    soma += r[k];
-                    k++;
-                }
-                i++;
-            } else {
-                if (q[j] > r[k]) {
-                    soma += q[j];
-                } else {
-                    soma += r[k];
-                    k++;
-                }
-                j++;
+    while (x > 0 && y > 0) {
+        size_t sc = sem_cor.empty() ? 0 : *sem_cor.rbegin();
+        size_t maior = max3(*vermelhas.rbegin(), *verdes.rbegin(), sc);
+        soma += maior;
+        if (maior == *vermelhas.rbegin()) { // comer maçã vermelha
+            vermelhas.erase(--vermelhas.end());
+            x--;
+        } else if (maior == *verdes.rbegin()) { // comer maçã verde
+            verdes.erase(--verdes.end());
+            y--;
+        } else { // comer maçã sem cor
+            if (*vermelhas.begin() < *verdes.begin()) { // pintar maçã de vermelho
+                vermelhas.erase(vermelhas.begin());
+                x--;
+            } else { // pintar maçã de verde
+                verdes.erase(verdes.begin());
+                y--;
             }
-            continue;
+            sem_cor.erase(--sem_cor.end());
         }
-
-        if (i < x and j < y and k == c) {
-            if (p[i] > q[j]) {
-                soma += p[i];
-                i++;
-            } else {
-                soma += q[j];
-                j++;
-            }
-        } else if (i < x and j == y and k < c) {
-            if (p[i] > r[k]) {
-                soma += p[i];
-            } else {
-                soma += r[k];
-                k++;
-            }
-            i++;
-        } else if (i == x and j < y and k < c) {
-            if (q[j] > r[k]) {
-                soma += q[j];
-            } else {
-                soma += r[k];
-                k++;
-            }
-            j++;
-        } else if (i < x and j == y) {
-            soma += p[i];
-            i++;
-        } else if (i == x and j < y) {
-            soma += q[j];
-            j++;
+    }
+    while (x > 0) {
+        size_t sc = sem_cor.empty() ? 0 : *sem_cor.rbegin();
+        if (*vermelhas.rbegin() > sc) { // comer maçã vermelha
+            soma += *vermelhas.rbegin();
+            vermelhas.erase(--vermelhas.end());
+        } else { // comer maçã sem cor
+            vermelhas.erase(vermelhas.begin());
+            soma += *sem_cor.rbegin();
+            sem_cor.erase(--sem_cor.end());
         }
+        x--;
+    }
+    while (y > 0) {
+        size_t sc = sem_cor.empty() ? 0 : *sem_cor.rbegin();
+        if (*verdes.rbegin() > sc) { // comer maçã verde
+            soma += *verdes.rbegin();
+            verdes.erase(--verdes.end());
+        } else { // comer maçã sem cor
+            verdes.erase(verdes.begin());
+            soma += *sem_cor.rbegin();
+            sem_cor.erase(--sem_cor.end());
+        }
+        y--;
     }
 
     cout << soma << "\n";
