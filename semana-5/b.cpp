@@ -1,10 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> moedas(5);
-vector<vector<int>> dp(6, vector<int>(11234, -1));
+vector<long> moedas(5);
+vector<vector<long>> dp(6, vector<long>(31234, -1));
 
-size_t sol(size_t tam, int alvo) {
+size_t sol(size_t tam, long alvo) {
     if (alvo < 0) {
         return 0;
     }
@@ -17,7 +17,7 @@ size_t sol(size_t tam, int alvo) {
     if (alvo == 0) {
         return dp[tam][alvo] = 1;
     }
-    return sol(tam - 1, alvo) + sol(tam, alvo - moedas[tam-1]);
+    return dp[tam][alvo] = sol(tam - 1, alvo) + sol(tam, alvo - moedas[tam-1]);
 }
 
 int main() {
@@ -25,7 +25,7 @@ int main() {
 
     moedas = {1, 5, 10, 25, 50};
 
-    int n;
+    long n;
     while (cin >> n) {
         cout << sol(5, n) << "\n";
     }
