@@ -2,20 +2,25 @@
 using namespace std;
 
 vector<size_t> pratos(18);
-vector<vector<size_t>> bonus (18, vector<size_t>(19, 0));
+vector<vector<size_t>> bonus(18, vector<size_t>(19, 0));
 size_t npratos, ncomer, nregras;
 
-size_t sol(size_t bitset, size_t comidos, size_t ultimo) {
+vector<vector<size_t>> dp(19, vector<size_t>(1 << 18, numeric_limits<size_t>::max()));
+
+size_t sol(size_t comidos, size_t ultimo, size_t bitset) {
     if (comidos == ncomer) {
-        return 0;
+        return dp[ultimo][bitset] = 0;
+    }
+    if (dp[ultimo][bitset] != numeric_limits<size_t>::max()) {
+        return dp[ultimo][bitset];
     }
     size_t res = 0;
     for (size_t i = 0; i < npratos; i++) {
         if (!((bitset >> i) & 1)) {
-            res = max(res, pratos[i] + bonus[i][ultimo] + sol(bitset | (1<<i), comidos + 1, i));
+            res = max(res, pratos[i] + bonus[i][ultimo] + sol(comidos + 1, i, bitset | (1<<i)));
         }
     }
-    return res;
+    return dp[ultimo][bitset] = res;
 }
 
 int main() {
@@ -33,7 +38,7 @@ int main() {
         bonus[p1][p2] = satisfacao;
     }
 
-    cout << sol(0, 0, npratos) << "\n";
+    cout << sol(0, npratos, 0) << "\n";
 
     return 0;
 }
