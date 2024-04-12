@@ -1,16 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<long> a(11234, 0);
+vector<int> a(11234, 0);
 size_t n, c;
 
-vector<vector<long>> dp(11234, vector<long>(11234, numeric_limits<long>::min()));
+vector<vector<int>> dp(11234, vector<int>(11234, numeric_limits<int>::min()));
 
-long sol(size_t ini, size_t k) {
+int sol(size_t ini, size_t k) {
     if (k * c + ini + 1 > n) {
         return 0;
     }
-    if (dp[ini][k] != numeric_limits<long>::min()) {
+    if (dp[ini][k] != numeric_limits<int>::min()) {
         return dp[ini][k];
     }
     if (k == 0) { // terminou de posicionar os lapis
