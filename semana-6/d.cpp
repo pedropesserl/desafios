@@ -2,13 +2,13 @@
 using namespace std;
 
 void add_bit(vector<long> &bit, long i, long delta) {
-    for (; i < (long)bit.size(); i += i & (-i))
+    for (; i < (long)bit.size(); i += i & -i)
         bit[i] += delta;
 }
 
 long get_bit(vector<long> &bit, long i) {
     long ans = 0;
-    for (; i > 0; i -= i & (-i))
+    for (; i > 0; i -= i & -i)
         ans += bit[i];
     return ans;
 }
@@ -19,14 +19,12 @@ int main() {
     string fita;
     cin >> n;
     cin >> fita;
-    vector<long> bit(n); // árvore de Fenwick
-    for (long i = 0; i < n; i++) {
-        bit[i] = (long)fita[i] - '0';
-    }
-    for (long i = 0; i < n; i++) {
-        long pai = i + (i & (-i));
-        if (pai < n) {
-            bit[pai] += (long)fita[i] - '0';
+    vector<long> bit(n + 1, 0); // árvore de Fenwick
+    for (long i = 1; i <= n; i++) {
+        bit[i] += (long)fita[i - 1] - '0';
+        long r = i + (i & -i);
+        if (r <= n) {
+            bit[r] += bit[i];
         }
     }
     cin >> n_ops;
@@ -34,7 +32,9 @@ int main() {
         cin >> op;
         if (op == 3) {
             cin >> p >> d;
-            add_bit(bit, p, d);
+            long og = (long)fita[p - 1] - '0';
+            add_bit(bit, p, d - og);
+            fita[p - 1] = (char)d + '0';
             continue;
         }
         cin >> a1 >> b1 >> a2 >> b2 >> d;
