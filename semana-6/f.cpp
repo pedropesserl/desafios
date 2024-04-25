@@ -13,6 +13,21 @@ long get_bit(vector<long> &bit, long i) {
     return ans;
 }
 
+long bs(vector<long> &bit, long a, long b, long x) {
+    if (a > b) {
+        return -1;
+    }
+    long m = a + (b - a)/2;
+    long v = get_bit(bit, m);
+    if (v < x) {
+        return bs(bit, m + 1, b, x);
+    }
+    if (v == x && (m == 1 || x > get_bit(bit, m - 1))) { // primeira ocorrência
+        return m;
+    }
+    return bs(bit, a, m - 1, x);
+}
+
 int main() {
     /* cin.tie(0)->sync_with_stdio(0); */
 
@@ -33,37 +48,39 @@ int main() {
         cin >> fita[i];
     }
 
-    size_t it = 0; // real
-    size_t it2 = 0; // abstração
+    long fita_sz = n;
+    long idx = 0;
     for (long i = 0; i < q; i++) {
         cin >> op;
         if (op == 'm') {
             cin >> d;
-            it2 += d;
-            it = get_bit(bit, it2 + 1);
+            idx += d;
         } else if (op == 'd') {
-            add_bit(bit, it2 + 1, 1);
-            it++;
-
-            n--;
-
+            add_bit(bit, bs(bit, 1, n, idx), -1);
+            if (idx == fita_sz - 1) {
+                idx--;
+            }
+            fita_sz--;
         } else { // op == 'q'
-            cout << fita[it] << "\n";
+            cout << fita[bs(bit, 1, n, idx) - 1] << "\n";
 
-            cout << "(it = " << it << ")\n";
-            cout << "(it2 = " << it2 << ")\n";
-            cout << "fita: [ ";
-            for (long j = 0; j < n; j++) {
-                cout << fita[get_bit(bit, j+1)] << " ";
+///////////////////////////////////////// testes ///////////////////////////////////////////
+            cout << "bit: [ ";
+            for (long j = 1; j <= n; j++) {
+                cout << get_bit(bit, j) << " ";
             }
             cout << "]\n";
-            cout << "bit:  [ ";
-            for (long j = 0; j < n; j++) {
-                cout << get_bit(bit, j+1) << " ";
+            cout << "posicoes validas:  [ ";
+            for (long j = 0; j < fita_sz; j++) {
+                cout << bs(bit, 1, n, j) << " ";
             }
             cout << "]\n";
-
-
+            cout << "fita valida:  [ ";
+            for (long j = 0; j < fita_sz; j++) {
+                cout << fita[bs(bit, 1, n, j) - 1] << " ";
+            }
+            cout << "]\n";
+///////////////////////////////////////// testes ///////////////////////////////////////////
         }
     }
 
