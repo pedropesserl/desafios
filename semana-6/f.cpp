@@ -29,7 +29,7 @@ long bs(vector<long> &bit, long a, long b, long x) {
 }
 
 int main() {
-    /* cin.tie(0)->sync_with_stdio(0); */
+    cin.tie(0)->sync_with_stdio(0);
 
     long n, q, d;
     char op;
@@ -57,30 +57,8 @@ int main() {
             idx += d;
         } else if (op == 'd') {
             add_bit(bit, bs(bit, 1, n, idx), -1);
-            if (idx == fita_sz - 1) {
-                idx--;
-            }
-            fita_sz--;
         } else { // op == 'q'
             cout << fita[bs(bit, 1, n, idx) - 1] << "\n";
-
-///////////////////////////////////////// testes ///////////////////////////////////////////
-            cout << "bit: [ ";
-            for (long j = 1; j <= n; j++) {
-                cout << get_bit(bit, j) << " ";
-            }
-            cout << "]\n";
-            cout << "posicoes validas:  [ ";
-            for (long j = 0; j < fita_sz; j++) {
-                cout << bs(bit, 1, n, j) << " ";
-            }
-            cout << "]\n";
-            cout << "fita valida:  [ ";
-            for (long j = 0; j < fita_sz; j++) {
-                cout << fita[bs(bit, 1, n, j) - 1] << " ";
-            }
-            cout << "]\n";
-///////////////////////////////////////// testes ///////////////////////////////////////////
         }
     }
 
