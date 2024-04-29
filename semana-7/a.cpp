@@ -6,7 +6,6 @@ using namespace std;
 #define mod(a, b)  ((((a) % (b)) + (b)) % (b))
 #define soma(a, b) (mod(mod(a, M) + mod(b, M), M))
 #define mult(a, b) (mod(mod(a, M) * mod(b, M), M))
-#define sub(a, b)  (mod(soma(mod(a, M) - mod(b, M), M), M))
 long pot(long a, long b) {
     if (b == 0) {
         return 1;
@@ -38,7 +37,7 @@ int main() {
 
     long soma_divs = 1;
     for (long i = 0; i < n; i++) {
-        soma_divs = mult(soma_divs, sub(pot(primos[i], soma(exps[i], 1)), 1) / sub(primos[i], 1));
+        soma_divs = mult(soma_divs, (pot(primos[i], soma(exps[i], 1)) - 1) / (primos[i] - 1);
     }
     cout << soma_divs << " ";
 
@@ -48,7 +47,7 @@ int main() {
         for (long i = 0; i < n; i++) {
             sqrt_numero = mult(sqrt_numero, pot(primos[i], exps[i] / 2));
         }
-        prod_divs = pot(mult(sqrt_numero, sqrt_numero), n_divs / 2) * sqrt_numero;
+        prod_divs = mult(pot(mult(sqrt_numero, sqrt_numero), n_divs / 2), sqrt_numero);
         cout << prod_divs << "\n";
         return 0;
     }
