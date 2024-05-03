@@ -15,13 +15,18 @@ long pot(long a, long b) {
     }
     long res = pot(a, b / 2);
     res = mult(res, res);
-    if (mod(b, 2) == 1) {
+    if (b % 2 == 1) {
         res = mult(res, a);
     }
     return res;
 }
+long divi(long a, long b) { // a / b (mod M) == a * b^(-1) (mod M) == a * b^(M-2) (mod M)
+    return mult(a, pot(b, M - 2));
+}
 
 int main() {
+    cin.tie(0)->sync_with_stdio(0);
+
     long n;
     cin >> n;
     vector<long> primos(n), exps(n);
@@ -31,13 +36,13 @@ int main() {
 
     long n_divs = 1;
     for (long exp : exps) {
-        n_divs = mult(n_divs, soma(exp, 1));
+        n_divs = mult(n_divs, exp + 1);
     }
     cout << n_divs << " ";
 
     long soma_divs = 1;
     for (long i = 0; i < n; i++) {
-        soma_divs = mult(soma_divs, (pot(primos[i], soma(exps[i], 1)) - 1) / (primos[i] - 1);
+        soma_divs = mult(soma_divs, divi(pot(primos[i], exps[i] + 1) - 1, primos[i] - 1));
     }
     cout << soma_divs << " ";
 
@@ -47,12 +52,12 @@ int main() {
         for (long i = 0; i < n; i++) {
             sqrt_numero = mult(sqrt_numero, pot(primos[i], exps[i] / 2));
         }
-        prod_divs = mult(pot(mult(sqrt_numero, sqrt_numero), n_divs / 2), sqrt_numero);
+        prod_divs = pot(mult(sqrt_numero, sqrt_numero), divi(n_divs, 2));
         cout << prod_divs << "\n";
         return 0;
     }
     for (long i = 0; i < n; i++) {
-        prod_divs = mult(prod_divs, pot(pot(primos[i], exps[i]), n_divs / 2));
+        prod_divs = mult(prod_divs, pot(pot(primos[i], exps[i]), divi(n_divs, 2)));
     }
     cout << prod_divs << "\n";
     return 0;
