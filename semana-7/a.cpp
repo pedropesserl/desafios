@@ -35,8 +35,17 @@ int main() {
     }
 
     long n_divs = 1;
-    for (long exp : exps) {
-        n_divs = mult(n_divs, exp + 1);
+    long n_divs_div_2_mod_m_menos_1 = 1;
+    bool dividido_por_2 = false;
+    for (long i = 0; i < n; i++) {
+        n_divs = mult(n_divs, exps[i] + 1);
+
+        if (!dividido_por_2 && (exps[i] + 1) % 2 == 0) {
+            n_divs_div_2_mod_m_menos_1 = mod(mod(n_divs_div_2_mod_m_menos_1, M-1) * mod((exps[i] + 1) / 2, M-1), M-1);
+            dividido_por_2 = true;
+        } else {
+            n_divs_div_2_mod_m_menos_1 = mod(mod(n_divs_div_2_mod_m_menos_1, M-1) * mod(exps[i] + 1, M-1), M-1);
+        }
     }
     cout << n_divs << " ";
 
@@ -52,12 +61,12 @@ int main() {
         for (long i = 0; i < n; i++) {
             sqrt_numero = mult(sqrt_numero, pot(primos[i], exps[i] / 2));
         }
-        prod_divs = pot(mult(sqrt_numero, sqrt_numero), divi(n_divs, 2));
-        cout << prod_divs << "\n";
-        return 0;
-    }
-    for (long i = 0; i < n; i++) {
-        prod_divs = mult(prod_divs, pot(pot(primos[i], exps[i]), divi(n_divs, 2)));
+        prod_divs = pot(sqrt_numero, n_divs_div_2_mod_m_menos_1);
+    } else {
+        for (long i = 0; i < n; i++) {
+            numero = mult(numero, pot(primos[i], exps[i]));
+        }
+        prod_divs = pot(numero, n_divs_div_2_mod_m_menos_1);
     }
     cout << prod_divs << "\n";
     return 0;
