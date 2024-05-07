@@ -5,7 +5,9 @@ using namespace std;
 
 #define mod(a, b)  ((((a) % (b)) + (b)) % (b))
 #define soma(a, b) (mod(mod(a, M) + mod(b, M), M))
+#define sub(a, b)  (mod(mod(a, M) - mod(b, M) + M, M))
 #define mult(a, b) (mod(mod(a, M) * mod(b, M), M))
+#define divi(a, b) (mult(a, pot(b, M - 2)))
 long pot(long a, long b) {
     if (b == 0) {
         return 1;
@@ -20,9 +22,6 @@ long pot(long a, long b) {
     }
     return res;
 }
-long divi(long a, long b) { // a / b (mod M) == a * b^(-1) (mod M) == a * b^(M-2) (mod M)
-    return mult(a, pot(b, M - 2));
-}
 
 int main() {
     cin.tie(0)->sync_with_stdio(0);
@@ -35,38 +34,39 @@ int main() {
     }
 
     long n_divs = 1;
-    long n_divs_div_2_mod_m_menos_1 = 1;
+    long n_divs_mod_m_menos_1 = 1;
     bool dividido_por_2 = false;
     for (long i = 0; i < n; i++) {
         n_divs = mult(n_divs, exps[i] + 1);
 
         if (!dividido_por_2 && (exps[i] + 1) % 2 == 0) {
-            n_divs_div_2_mod_m_menos_1 = mod(mod(n_divs_div_2_mod_m_menos_1, M-1) * mod((exps[i] + 1) / 2, M-1), M-1);
+            n_divs_mod_m_menos_1 = mod(mod(n_divs_mod_m_menos_1, M-1) * mod((exps[i] + 1) / 2, M-1), M-1);
             dividido_por_2 = true;
         } else {
-            n_divs_div_2_mod_m_menos_1 = mod(mod(n_divs_div_2_mod_m_menos_1, M-1) * mod(exps[i] + 1, M-1), M-1);
+            n_divs_mod_m_menos_1 = mod(mod(n_divs_mod_m_menos_1, M-1) * mod(exps[i] + 1, M-1), M-1);
         }
     }
     cout << n_divs << " ";
 
     long soma_divs = 1;
     for (long i = 0; i < n; i++) {
-        soma_divs = mult(soma_divs, divi(pot(primos[i], exps[i] + 1) - 1, primos[i] - 1));
+        soma_divs = mult(soma_divs, divi(sub(pot(primos[i], exps[i] + 1), 1), primos[i] - 1));
     }
     cout << soma_divs << " ";
 
-    long prod_divs = 1;
-    if (n_divs % 2 == 1) { // quadrado perfeito
+    long prod_divs;
+    if (!dividido_por_2) { // quadrado perfeito
         long sqrt_numero = 1;
         for (long i = 0; i < n; i++) {
             sqrt_numero = mult(sqrt_numero, pot(primos[i], exps[i] / 2));
         }
-        prod_divs = pot(sqrt_numero, n_divs_div_2_mod_m_menos_1);
+        prod_divs = pot(sqrt_numero, n_divs_mod_m_menos_1);
     } else {
+        long numero = 1;
         for (long i = 0; i < n; i++) {
             numero = mult(numero, pot(primos[i], exps[i]));
         }
-        prod_divs = pot(numero, n_divs_div_2_mod_m_menos_1);
+        prod_divs = pot(numero, n_divs_mod_m_menos_1);
     }
     cout << prod_divs << "\n";
     return 0;
