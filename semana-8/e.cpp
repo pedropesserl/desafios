@@ -1,18 +1,22 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<vector<int>> t(112345);
-vector<bool> visitados(112345, false);
+vector<vector<long>> t(212345);
+vector<bool> visitados(212345, false);
+long mais_distante;
+long maior_dist;
 
-long nivel(long v) {
+void dfs(long v, long dist) {
     visitados[v] = true;
-    long nivel = 0;
+    if (dist > maior_dist) {
+        maior_dist = dist;
+        mais_distante = v;
+    }
     for (long u : t[v]) {
         if (!visitados[u]) {
-            nivel = max(nivel, 1 + nivel(u));
+            dfs(u, dist + 1);
         }
     }
-    return nivel;
 }
 
 int main() {
@@ -20,14 +24,18 @@ int main() {
 
     long n;
     cin >> n;
-    for (long i = 0; i < m; i++) {
+    for (long i = 0; i < n - 1; i++) {
         long u, v;
         cin >> u >> v;
         t[u].push_back(v);
         t[v].push_back(u);
     }
-    vector<int> vizinhos_raiz = t[0];
-    long diametro = 0;///////aaaaaa
+    
+    dfs(1, 0);
+    visitados.assign(visitados.size(), false);
+    maior_dist = 0;
+    dfs(mais_distante, 0);
+    cout << maior_dist << "\n";
 
     return 0;
 }
