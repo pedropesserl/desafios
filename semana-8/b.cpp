@@ -3,68 +3,87 @@ using namespace std;
 
 vector<string> labirinto(1123);
 vector<vector<bool>> visitados(1123, vector<bool>(1123, false));
-string caminho;
-vector<vector<long>> dp(1123, vector<long>(1123, -1));
-
-long sol(int i, int j, string caminho_atual) {
-    if (i < 0 or j < 0) {
-        return -1;
-    }
-    if (dp[i][j] != -1) {
-        return dp[i][j];
-    }
-    if (visitados[i][j] == true) {
-        return -1;
-    }
-    if (labirinto[i][j] == '#') {
-        return -1;
-    }
-    if (labirinto[i][j] == 'B') {
-        if (caminho == "" or caminho_atual.size() < caminho.size()) {
-            caminho = caminho_atual;
-        }
-        return dp[i][j] = 0;
-    }
-    visitados[i][j] = true;
-    long ret = -1;
-    long esq = sol(i, j - 1, caminho_atual + "L"), dir = sol(i, j + 1, caminho_atual + "R");
-    long cim = sol(i - 1, j, caminho_atual + "U"), bai = sol(i + 1, j, caminho_atual + "D");
-    if (esq != -1) { ret = 1 + esq; }
-    if (dir != -1 and (ret == -1 or 1 + dir < ret)) { ret = 1 + dir; }
-    if (cim != -1 and (ret == -1 or 1 + cim < ret)) { ret = 1 + cim; }
-    if (bai != -1 and (ret == -1 or 1 + bai < ret)) { ret = 1 + bai; }
-    visitados[i][j] = false;
-    return dp[i][j] = ret;
-}
+vector<vector<long>> dists(1123, vector<long>(1123, numeric_limits<long>::max()));
+vector<vector<char>> direcoes(1123, vector<char>(1123, '0'));
 
 int main() {
     cin.tie(0)->sync_with_stdio(0);
 
     int n, m;
     cin >> n >> m;
-    int Ai = -1, Aj = -1;
+    int Ai = -1, Aj = -1, Bi = -1, Bj = -1;
     for (int i = 0; i < n; i++) {
         cin >> labirinto[i];
-        if (Ai == -1) { // não achou início do labirinto ainda
+        if (Ai == -1 or Bi == -1) { // não achou início ou fim do labirinto ainda
             for (int j = 0; j < m; j++) {
                 if (labirinto[i][j] == 'A') {
                     Ai = i;
                     Aj = j;
                     break;
                 }
+                if (labirinto[i][j] == 'B') {
+                    Bi = i;
+                    Bj = j;
+                    break;
+                }
             }
         }
     }
 
-    caminho = "";
-    long tam = sol(Ai, Aj, "");
-    if (tam == -1) {
+    // Dijkstra
+    priority_queue<tuple<long, int, int>, vector<tuple<long, int, int>>,
+                   greater<tuple<long, int, int>>> q;
+    dists[Ai][Aj] = 0;
+    q.push({0, Ai, Aj});
+    while (!q.empty()) {
+        auto [d, i, j] = q.top();
+        q.pop();
+        if (i == Bi and j == Bj) { // achou a saída
+            break;
+        }
+        if (visitados[i][j]) {
+            continue;
+        }
+        visitados[i][j] = true;
+        vector<pair<int, int>> vizinhos = {{i - 1, j}, {i, j - 1}, {i, j + 1}, {i + 1, j}};
+        for (auto [vi, vj] : vizinhos) {
+            if (vi < 0 or vj < 0 or vi >= n or vj >= m or labirinto[vi][vj] == '#') {
+                continue;
+            }
+            if (dists[vi][vj] > dists[i][j] + 1) {
+                dists[vi][vj] = dists[i][j] + 1;
+                q.push({dists[vi][vj], vi, vj});
+                if      (vj == j - 1) direcoes[vi][vj] = 'L';
+                else if (vj == j + 1) direcoes[vi][vj] = 'R';
+                else if (vi == i - 1) direcoes[vi][vj] = 'U';
+                else                  direcoes[vi][vj] = 'D';
+            }
+        }
+    } 
+
+    if (dists[Bi][Bj] == numeric_limits<long>::max()) {
         cout << "NO\n";
         return 0;
     }
     cout << "YES\n";
-    cout << tam << "\n";
-    cout << caminho << "\n";
+    cout << dists[Bi][Bj] << "\n";
+
+    deque<char> caminho;
+    pair<int, int> p = {Bi, Bj};
+    while (p.first != Ai or p.second != Aj) {
+        char d = direcoes[p.first][p.second];
+        caminho.push_front(d);
+        switch (d) {
+            case 'L': p.second++; break;
+            case 'R': p.second--; break;
+            case 'U': p.first++;  break;
+            case 'D': p.first--;  break;
+        }
+    }
+    for (char c : caminho) {
+        cout << c;
+    }
+    cout << "\n";
 
     return 0;
 }
