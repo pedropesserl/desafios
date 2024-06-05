@@ -68,11 +68,10 @@ int main() {
     cout << "YES\n";
     cout << dists[Bi][Bj] << "\n";
 
-    deque<char> caminho;
-    pair<int, int> p = {Bi, Bj};
-    while (p.first != Ai or p.second != Aj) {
+    string caminho = "";
+    for (pair<int, int> p = {Bi, Bj}; p.first != Ai or p.second != Aj;) {
         char d = direcoes[p.first][p.second];
-        caminho.push_front(d);
+        caminho = d + caminho;
         switch (d) {
             case 'L': p.second++; break;
             case 'R': p.second--; break;
@@ -80,10 +79,7 @@ int main() {
             case 'D': p.first--;  break;
         }
     }
-    for (char c : caminho) {
-        cout << c;
-    }
-    cout << "\n";
+    cout << caminho << "\n";
 
     return 0;
 }
