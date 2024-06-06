@@ -3,16 +3,16 @@ using namespace std;
 
 vector<vector<int>> t(212345);
 vector<bool> visitados(212345, false);
+vector<long> tamanhos(212345, 1);
 
-long size(int v) {
+void calcula_tamanho(int v) {
     visitados[v] = true;
-    long sz = 1;
     for (int u : t[v]) {
         if (!visitados[u]) {
-            sz += size(u);
+            calcula_tamanho(u);
+            tamanhos[v] += tamanhos[u];
         }
     }
-    return sz;
 }
 
 int main() {
@@ -27,39 +27,36 @@ int main() {
         t[v].push_back(u);
     }
 
-    if (n <= 2) {
-        cout << "1\n";
-        return 0;
-    }
-    
-    int v = 1;
-    long tamanho_ja_explorado = 0;
-    int vizinho_ja_explorado;
-    while (true) {
-        visitados[v] = true;
-        long max_size = 1;
-        int vizi_max_size = v;
-        if (tamanho_ja_explorado > max_size) {
-            max_size = tamanho_ja_explorado;
-            vizi_max_size = vizinho_ja_explorado;
+    visitados[1] = true;
+    long max_tam = 0;
+    int v;
+    for (int u : t[1]) {
+        calcula_tamanho(u);
+        if (tamanhos[u] > max_tam) {
+            max_tam = tamanhos[u];
+            v = u;
         }
-        for (int u : t[v]) {
-            int u_size = size(u);
-            if (u_size > max_size) {
-                max_size = u_size;
-                vizi_max_size = u;
+    }
+    int v_old = 1;
+    while (max_tam > n/2) {
+        tamanhos[v_old] = 0;
+        for (int u : t[v_old]) {
+            if (u != v) {
+                tamanhos[v_old] += tamanhos[u];
             }
-            tamanho_ja_explorado += u_size;
         }
-        tamanho_ja_explorado += 1 - max_size;
-        if (max_size <= n/2) {
-            cout << v << "\n";
-            break;
+        max_tam = 0;
+        int v_next;
+        for (int u : t[v]) {
+            if (tamanhos[u] > max_tam) {
+                max_tam = tamanhos[u];
+                v_next = u;
+            }
         }
-        visitados.assign(visitados.size(), false);
-        visitados[v] = true; // impede de procurar de novo na área que já buscamos
-        v = vizi_max_size;
+        v_old = v;
+        v = v_next;
     }
+    cout << v_old << "\n";
 
     return 0;
 }
