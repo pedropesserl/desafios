@@ -19,12 +19,10 @@ int main() {
                 if (labirinto[i][j] == 'A') {
                     Ai = i;
                     Aj = j;
-                    break;
                 }
                 if (labirinto[i][j] == 'B') {
                     Bi = i;
                     Bj = j;
-                    break;
                 }
             }
         }
@@ -71,7 +69,7 @@ int main() {
     string caminho = "";
     for (pair<int, int> p = {Bi, Bj}; p.first != Ai or p.second != Aj;) {
         char d = direcoes[p.first][p.second];
-        caminho = d + caminho;
+        caminho += d;
         switch (d) {
             case 'L': p.second++; break;
             case 'R': p.second--; break;
@@ -79,6 +77,7 @@ int main() {
             case 'D': p.first--;  break;
         }
     }
+    reverse(caminho.begin(), caminho.end());
     cout << caminho << "\n";
 
     return 0;
