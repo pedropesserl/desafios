@@ -1,20 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<vector<long>> t(212345);
+vector<vector<int>> t(212345);
 vector<bool> visitados(212345, false);
-long mais_distante;
-long maior_dist;
+vector<long> tamanhos(212345, 1);
 
-void dfs(long v, long dist) {
+void calcula_tamanho(int v) {
     visitados[v] = true;
-    if (dist > maior_dist) {
-        maior_dist = dist;
-        mais_distante = v;
-    }
-    for (long u : t[v]) {
+    for (int u : t[v]) {
         if (!visitados[u]) {
-            dfs(u, dist + 1);
+            calcula_tamanho(u);
+            tamanhos[v] += tamanhos[u];
         }
     }
 }
@@ -22,20 +18,45 @@ void dfs(long v, long dist) {
 int main() {
     cin.tie(0)->sync_with_stdio(0);
 
-    long n;
+    int n;
     cin >> n;
-    for (long i = 0; i < n - 1; i++) {
-        long u, v;
+    for (int i = 0; i < n - 1; i++) {
+        int u, v;
         cin >> u >> v;
         t[u].push_back(v);
         t[v].push_back(u);
     }
-    
-    dfs(1, 0);
-    visitados.assign(visitados.size(), false);
-    maior_dist = 0;
-    dfs(mais_distante, 0);
-    cout << maior_dist << "\n";
+
+    visitados[1] = true;
+    long max_tam = 0;
+    int v;
+    for (int u : t[1]) {
+        calcula_tamanho(u);
+        if (tamanhos[u] > max_tam) {
+            max_tam = tamanhos[u];
+            v = u;
+        }
+    }
+    int v_old = 1;
+    while (max_tam > n/2) {
+        tamanhos[v_old] = 0;
+        for (int u : t[v_old]) {
+            if (u != v) {
+                tamanhos[v_old] += tamanhos[u];
+            }
+        }
+        max_tam = 0;
+        int v_next;
+        for (int u : t[v]) {
+            if (tamanhos[u] > max_tam) {
+                max_tam = tamanhos[u];
+                v_next = u;
+            }
+        }
+        v_old = v;
+        v = v_next;
+    }
+    cout << v_old << "\n";
 
     return 0;
 }
