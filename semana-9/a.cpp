@@ -1,11 +1,13 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<set<int>> rede(112345); // grafo é um vetor de set para poder remover
-                               // conexões facilmente
-vector<bool> visitados(112345, false);
-const long oo = 1987654321987654321;
-vector<long> dists(112345, oo);
+vector<vector<int>> rede(112345);
+vector<int> visitados(112345, false);
+set<pair<int, int>> cabos;
+vector<pair<int, int>> quebrados;
+vector<int> representantes(112345); // união-busca
+int c;
+vector<int> componentes_rev;
 
 void dfs(int v) {
     visitados[v] = true;
@@ -16,30 +18,6 @@ void dfs(int v) {
     }
 }
 
-long dijkstra(int u, int v) {
-    dists.assign(dists.size(), oo);
-    visitados.assign(visitados.size(), false);
-
-    priority_queue<pair<long, int>, vector<pair<long, int>>,
-                   greater<pair<long, int>>> q;
-    dists[u] = 0;
-    q.push({0, u});
-    while (!q.empty()) {
-        auto [d, a] = q.top();
-        q.pop();
-        if (visitados[a]) continue;
-        visitados[a] = true;
-        for (int b : rede[a]) {
-            if (dists[b] > dists[a] + 1) {
-                dists[b] = dists[a] + 1;
-                q.push({dists[b], b});
-            }
-        }
-    }
-
-    return dists[v];
-}
-
 int main() {
     cin.tie(0)->sync_with_stdio(0);
 
@@ -48,29 +26,35 @@ int main() {
     for (int i = 0; i < m; i++) {
         int u, v;
         cin >> u >> v;
-        rede[u].insert(v);
-        rede[v].insert(u);
+        cabos.insert({u, v});
     }
-
-    int num_componentes = 0;
-    for (int v = 1; v <= n; v++) {
-        if (!visitados[v]) {
-            num_componentes++;
-            dfs(v);
-        }
-    }
-
     for (int i = 0; i < k; i++) {
         int u, v;
         cin >> u >> v;
-        rede[u].erase(v);
-        rede[v].erase(u);
-        if (dijkstra(u, v) == oo) {
-            num_componentes++;
+        quebrados.push_back({u, v});
+        cabos.erase({u, v});
+        cabos.erase({v, u});
+    }
+    for (auto [u, v] : cabos) {
+        rede[u].push_back(v);
+        rede[v].push_back(u);
+    }
+
+    for (int v = 1, c = 0; v <= n; v++) {
+        if (!visitados[v]) {
+            c++;
+            dfs(v);
         }
-        cout << num_componentes << " ";
+    }
+    componentes_rev.push_back(c);
+
+    
+
+    reverse(componentes_rev.begin(), componentes_rev.end());
+    for (int n_componentes : componentes_rev) {
+        cout << n_componentes << " ";
     }
     cout << "\n";
-    
+
     return 0;
 }
