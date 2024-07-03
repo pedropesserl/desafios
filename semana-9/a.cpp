@@ -1,19 +1,38 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<vector<int>> rede(112345);
-vector<int> visitados(112345, false);
-set<pair<int, int>> cabos;
+vector<set<int>> rede(112345); // grafo é um vetor de set para poder excluir arestas em log n
+vector<bool> visitados(112345, false);
 vector<pair<int, int>> quebrados;
 vector<int> representantes(112345); // união-busca
-int c;
-vector<int> componentes_rev;
+vector<int> ranks(112345);
 
-void dfs(int v) {
-    visitados[v] = true;
-    for (int u : rede[v]) {
-        if (!visitados[u]) {
-            dfs(u);
+int ds_find(int u) {
+    if (representantes[u] != u) {
+        representantes[u] = ds_find(representantes[u]);
+    }
+    return representantes[u];
+}
+
+void ds_union(int u, int v) {
+    u = ds_find(u);
+    v = ds_find(v);
+    assert(u != v);
+    if (ranks[u] <= ranks[v]) {
+        swap(u, v);
+    }
+    if (ranks[u] == ranks[v]) {
+        ranks[u]++;
+    }
+    representantes[v] = u;
+}
+
+void dfs(int u) {
+    visitados[u] = true;
+    for (int v : rede[u]) {
+        if (!visitados[v]) {
+            ds_union(u, v);
+            dfs(v);
         }
     }
 }
@@ -26,33 +45,44 @@ int main() {
     for (int i = 0; i < m; i++) {
         int u, v;
         cin >> u >> v;
-        cabos.insert({u, v});
+        rede[u].insert(v);
+        rede[v].insert(u);
     }
     for (int i = 0; i < k; i++) {
         int u, v;
         cin >> u >> v;
         quebrados.push_back({u, v});
-        cabos.erase({u, v});
-        cabos.erase({v, u});
-    }
-    for (auto [u, v] : cabos) {
-        rede[u].push_back(v);
-        rede[v].push_back(u);
+        rede[u].erase(v);
+        rede[v].erase(u);
     }
 
-    for (int v = 1, c = 0; v <= n; v++) {
+    // união-busca
+    for (int u = 1; u <= n; u++) {
+        representantes[u] = u;
+        ranks[u] = 0;
+    }
+
+    int c = 0;
+    for (int v = 1; v <= n; v++) {
         if (!visitados[v]) {
             c++;
             dfs(v);
         }
     }
+    vector<int> componentes_rev;
     componentes_rev.push_back(c);
 
-    
+    reverse(quebrados.begin(), quebrados.end());
+    for (auto [u, v] : quebrados) {
+        if (ds_find(u) != ds_find(v)) {
+            ds_union(u, v);
+            c--;
+        }
+        componentes_rev.push_back(c);
+    }
 
-    reverse(componentes_rev.begin(), componentes_rev.end());
-    for (int n_componentes : componentes_rev) {
-        cout << n_componentes << " ";
+    for (int i = componentes_rev.size() - 2; i >= 0; i--) {
+        cout << componentes_rev[i] << " ";
     }
     cout << "\n";
 
