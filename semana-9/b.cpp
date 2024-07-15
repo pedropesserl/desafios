@@ -22,7 +22,7 @@ int main() {
     for (int i = 0; i < m; i++) {
         int u, v;
         cin >> u >> v;
-        arestas.push_back({u, v, lotacoes[v] - lotacoes[u]});
+        arestas.push_back({u, v, lotacoes[v - 1] - lotacoes[u - 1]});
     }
 
     int q;
@@ -40,13 +40,11 @@ int main() {
                 }   
             }
         }
-        if (dists[x] < 3) {
+        if (dists[x] < 3 || dists[x] >= oo) {
             cout << "Não, Edsger...\n";
         } else {
             cout << dists[x] << "\n";
         }
-        /* // Verificação de ciclos negativos */
-        /* for (auto a : arestas) */
     }
 
     return 0;
