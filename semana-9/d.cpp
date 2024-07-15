@@ -4,64 +4,60 @@ using namespace std;
 int main() {
     cin.tie(0)->sync_with_stdio(0);
 
+    const int oo = 987654321;
     int n, m;
     cin >> n >> m;
-    map<string, vector<string>> g;
+
+    map<string, int> ids;
+    vector<string> strings(n + 10, "");
+    int id = 1;
+
+    vector<vector<int>> g(n + 10);
     for (int i = 0; i < m; i++) {
         string u, v;
         cin >> u >> v;
-        g[u].push_back(v);
+        if (ids[u] == 0) {
+            ids[u] = id;
+            strings[id++] = u;
+        }
+        if (ids[v] == 0) {
+            ids[v] = id;
+            strings[id++] = v;
+        }
+        g[ids[u]].push_back(ids[v]);
     }
 
-    auto cmp = [](pair<int, deque<string>> a, pair<int, deque<string>> b) {
-        if (a.first == b.first) {
-            // podemos presumir que o deque nunca vai estar vazio
-            if (a.second[0] == b.second[0]) {
-                return a.second[a.second.size() - 1] < b.second[b.second.size() - 1];
-            }
-            return a.second[0] < b.second[0];
-        }
-        return a.first < b.first;
-    };
-    set<pair<int, deque<string>>, decltype(cmp)> caminhos_mins; // dist, [caminho]
+    set<tuple<int, string, string>> caminhos_mins; // dist, origem, destino
 
-    for (auto [u, vizinhos] : g) {
-        map<string, bool> visitados;
+    for (int u = 1; u <= n; u++) {
+        vector<bool> visitados(n + 10, false);
         visitados[u] = true;
-        map<string, string> pai;
-        pai[u] = "";
+        vector<int> dists(n + 10, oo);
+        dists[u] = 0;
 
-        queue<string> q;
+        queue<int> q;
         q.push(u);
         while (!q.empty()) {
-            string v = q.front();
+            int v = q.front();
             q.pop();
-            for (string w : g[v]) {
+            for (int w : g[v]) {
                 if (!visitados[w]) {
                     visitados[w] = true;
-                    pai[w] = v;
+                    dists[w] = dists[v] + 1;
                     q.push(w);
                 }
             }
         }
         
-        for (auto [v, visitado] : visitados) {
-            if (v != u) {
-                // reconstrur caminho
-                deque<string> caminho;
-                caminho.push_front(v);
-                string v_ = v; // C++????
-                while (v_ != u) {
-                    v_ = pai[v_];
-                    caminho.push_front(v_);
-                }
-                caminhos_mins.insert({caminho.size() - 1, caminho});
+        for (int v = 1; v <= n; v++) {
+            if (v != u && dists[v] != oo) {
+                caminhos_mins.insert({dists[v], strings[u], strings[v]});
             }
         }
     }
 
     int soma_caminhos = 0;
-    for (auto [dist, caminho] : caminhos_mins) {
+    for (auto [dist, origem, destino] : caminhos_mins) {
         soma_caminhos += dist;
     }
     cout << (double)soma_caminhos / caminhos_mins.size() << "\n";
@@ -69,7 +65,30 @@ int main() {
     int caminho_mediano = caminhos_mins.size() / 2 - (caminhos_mins.size() % 2 == 0);
     auto it = caminhos_mins.begin();
     for (int i = 0; i < caminho_mediano; i++, it++);
-    for (auto s : (*it).second) {
+
+    int origem = ids[get<1>(*it)], destino = ids[get<2>(*it)];
+    vector<bool> visitados(n + 10, false);
+    visitados[origem] = true;
+    vector<int> pai(n + 10, 0);
+    queue<int> q;
+    q.push(origem);
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for (int v : g[u]) {
+            if (!visitados[v]) {
+                visitados[v] = true;
+                pai[v] = u;
+                q.push(v);
+            }
+        }
+    }
+
+    deque<string> caminho;
+    for (int v = destino; v != 0; v = pai[v]) {
+        caminho.push_front(strings[v]);
+    }
+    for (auto s : caminho) {
         cout << s << " ";
     }
     cout << "\n";
