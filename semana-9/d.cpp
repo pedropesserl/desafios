@@ -13,7 +13,17 @@ int main() {
         g[u].push_back(v);
     }
 
-    set<pair<int, deque<string>>> caminhos_mins; // dist, [caminho]
+    auto cmp = [](pair<int, deque<string>> a, pair<int, deque<string>> b) {
+        if (a.first == b.first) {
+            // podemos presumir que o deque nunca vai estar vazio
+            if (a.second[0] == b.second[0]) {
+                return a.second[a.second.size() - 1] < b.second[b.second.size() - 1];
+            }
+            return a.second[0] < b.second[0];
+        }
+        return a.first < b.first;
+    };
+    set<pair<int, deque<string>>, decltype(cmp)> caminhos_mins; // dist, [caminho]
 
     for (auto [u, vizinhos] : g) {
         map<string, bool> visitados;
