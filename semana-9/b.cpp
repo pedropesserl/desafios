@@ -25,21 +25,21 @@ int main() {
         arestas.push_back({u, v, lotacoes[v - 1] - lotacoes[u - 1]});
     }
 
+    // Bellman-Ford
+    dists[1] = 0;
+    for (int i = 0; i < n - 1; i++) {
+        for (aresta a : arestas) {
+            if (dists[a.u] != oo && dists[a.v] > dists[a.u] + a.w) {
+                dists[a.v] = dists[a.u] + a.w;
+            }   
+        }
+    }
+
     int q;
     cin >> q;
     for (int i = 0; i < q; i++) {
-        dists.assign(dists.size(), oo);
         int x;
         cin >> x;
-        // Bellman-Ford
-        dists[1] = 0;
-        for (int j = 0; j < n - 1; j++) {
-            for (aresta a : arestas) {
-                if (dists[a.u] != oo && dists[a.v] > dists[a.u] + a.w) {
-                    dists[a.v] = dists[a.u] + a.w;
-                }   
-            }
-        }
         if (dists[x] < 3 || dists[x] >= oo) {
             cout << "Não, Edsger...\n";
         } else {
