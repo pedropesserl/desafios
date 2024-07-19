@@ -2,6 +2,8 @@
 using namespace std;
 
 #define N 112345
+#define OP(a, b) (a) + (b)
+#define NEUTRAL 0
 
 vector<long> t(4 * N);
 vector<bool> mark(4 * N);
@@ -16,7 +18,7 @@ void build(vector<long>& src, int ti = 1, int tl = 1, int tr = N) {
     int tm = (tl + tr) / 2;
     build(src, ti * 2, tl, tm);
     build(src, ti * 2 + 1, tm + 1, tr);
-    t[ti] = t[ti * 2] * t[ti * 2 + 1];
+    t[ti] = OP(t[ti * 2], t[ti * 2 + 1]);
 }
 
 void push(int ti) {
@@ -57,17 +59,18 @@ void add_inclusive(int l, int r, long delta, int ti = 1, int tl = 1, int tr = N)
 
 long op_inclusive(int l, int r, int ti = 1, int tl = 1, int tr = N) {
     if (l > r) {
-        return 0; // NEUTRAL
+        return NEUTRAL;
     }
     if (tl == l && tr == r) {
         return t[ti];
     }
-    int tm = (tl + tr / 2);
-    return op_inclusive(l, min(r, tm), ti * 2, tl, tm) + op_inclusive(max(l, tm + 1), r, ti * 2 + 1, tm + 1, tr);
+    int tm = (tl + tr) / 2;
+    return OP(op_inclusive(l, min(r, tm), ti * 2, tl, tm),
+              op_inclusive(max(l, tm + 1), r, ti * 2 + 1, tm + 1, tr));
 }
 
 int main() {
-    cin.tie(0)->sync_with_stdio(0);
+    /* cin.tie(0)->sync_with_stdio(0); */
 
     int n, q, op, a, b, x;
     cin >> n >> q;
