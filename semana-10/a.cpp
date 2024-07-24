@@ -33,7 +33,7 @@ int get_up_bound(int l, int r, int x, int ti = 1, int tl = 1, int tr = n) {
 }
 
 int main() {
-    /* cin.tie(0)->sync_with_stdio(0); */
+    cin.tie(0)->sync_with_stdio(0);
 
     int q, i, j, k;
     cin >> n >> q;
@@ -50,25 +50,17 @@ int main() {
         cin >> i >> j >> k;
 
         int lo = -1e9, hi = 1e9;
-        int pos_prev = 9999, m_prev = 9999, m = 0;
+        int m = 0;
         while (hi >= lo) {
             m = (hi + lo) / 2;
             int pos = get_up_bound(i, j, m);
             if (pos < k) {
                 lo = m + 1;
-            /* } else if (pos > k) { */
-            /*     hi = m - 1; */
             } else {
-                /* if (m == m_prev) { */
-                    /* cout << m << "\n"; */
-                /*     break; */
-                /* } */
                 hi = m - 1;
             }
-            pos_prev = pos;
-            m_prev = m;
         }
-        cout << m << "\n";
+        cout << lo << "\n";
     }
 
     return 0;
