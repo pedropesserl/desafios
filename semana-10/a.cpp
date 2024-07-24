@@ -3,38 +3,21 @@ using namespace std;
 
 int n;
 
-vector<int> merge(vector<int> a, vector<int> b) {
-    vector<int> c(a.size() + b.size());
-    size_t ai = 0, bi = 0, ci = 0;
-    while (ai < a.size() && bi < b.size()) {
-        if (a[ai] < b[bi]) {
-            c[ci++] = a[ai++];
-        } else {
-            c[ci++] = b[bi++];
-        }
-    }
-    while (ai < a.size()) {
-        c[ci++] = a[ai++];
-    }
-    while (bi < b.size()) {
-        c[ci++] = b[bi++];
-    }
-    return c;
-}
-
 vector<vector<int>> t;
 
 void build(vector<int>& src, int ti = 1, int tl = 1, int tr = n) {
     if (tl == tr) {
         if ((size_t)tl < src.size()) {
-            t[ti].push_back(src[tl]);
+            t[ti] = vector<int>(1, src[tl]);
         }
         return;
     }
     int tm = (tl + tr) / 2;
     build(src, ti * 2, tl, tm);
     build(src, ti * 2 + 1, tm + 1, tr);
-    t[ti] = merge(t[ti * 2], t[ti * 2 + 1]);
+    t[ti] = vector<int>(t[ti * 2].size() + t[ti * 2 + 1].size());
+    merge(t[ti * 2].begin(), t[ti * 2].end(),
+          t[ti * 2 + 1]. begin(), t[ti * 2 + 1].end(), t[ti].begin());
 }
 
 int get_up_bound(int l, int r, int x, int ti = 1, int tl = 1, int tr = n) {
@@ -63,31 +46,29 @@ int main() {
     t.resize(4 * n);
     build(vetor);
 
-    for (auto v : t) {
-        if (v.empty()) continue;
-        for (auto debug : v) {
-            cout << debug << " ";
-        }
-        cout << "\n";
-    }
-
     while (q--) {
         cin >> i >> j >> k;
 
         int lo = -1e9, hi = 1e9;
+        int pos_prev = 9999, m_prev = 9999, m = 0;
         while (hi >= lo) {
-            int m = (hi + lo) / 2;
+            m = (hi + lo) / 2;
             int pos = get_up_bound(i, j, m);
             if (pos < k) {
                 lo = m + 1;
-                continue;
+            /* } else if (pos > k) { */
+            /*     hi = m - 1; */
+            } else {
+                /* if (m == m_prev) { */
+                    /* cout << m << "\n"; */
+                /*     break; */
+                /* } */
+                hi = m - 1;
             }
-
+            pos_prev = pos;
+            m_prev = m;
         }
-
-        auto res = op_inclusive(i, j, k);
-        cout << res << "\n";
-
+        cout << m << "\n";
     }
 
     return 0;
