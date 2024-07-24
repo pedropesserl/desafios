@@ -37,7 +37,7 @@ void build(vector<int>& src, int ti = 1, int tl = 1, int tr = n) {
     t[ti] = merge(t[ti * 2], t[ti * 2 + 1]);
 }
 
-int op_inclusive(int l, int r, int x, int ti = 1, int tl = 1, int tr = n) {
+int get_up_bound(int l, int r, int x, int ti = 1, int tl = 1, int tr = n) {
     if (l > r) {
         return 0;
     }
@@ -45,8 +45,8 @@ int op_inclusive(int l, int r, int x, int ti = 1, int tl = 1, int tr = n) {
         return upper_bound(t[ti].begin(), t[ti].end(), x) - t[ti].begin();
     }
     int tm = (tl + tr) / 2;
-    return op_inclusive(l, min(r, tm), x, ti * 2, tl, tm)
-           + op_inclusive(max(l, tm + 1), r, x, ti * 2 + 1, tm + 1, tr);
+    return get_up_bound(l, min(r, tm), x, ti * 2, tl, tm)
+           + get_up_bound(max(l, tm + 1), r, x, ti * 2 + 1, tm + 1, tr);
 }
 
 int main() {
@@ -74,10 +74,16 @@ int main() {
     while (q--) {
         cin >> i >> j >> k;
 
-        int hi = 1e9, lo = -1e9;
-        /* while (hi > lo) { */
-        /*     int m = (hi + lo) / 2; */
-        /* } */
+        int lo = -1e9, hi = 1e9;
+        while (hi >= lo) {
+            int m = (hi + lo) / 2;
+            int pos = get_up_bound(i, j, m);
+            if (pos < k) {
+                lo = m + 1;
+                continue;
+            }
+
+        }
 
         auto res = op_inclusive(i, j, k);
         cout << res << "\n";
